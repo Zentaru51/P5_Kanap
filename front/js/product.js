@@ -1,5 +1,5 @@
-let params = new URLSearchParams(document.location.search);
-let id = params.get("id");
+const params = new URLSearchParams(document.location.search);
+const id = params.get("id");
 const api = "http://localhost:3000/api/products/" + id;
 const div_img = document.querySelector(".item__img");
 const title = document.getElementById("title");

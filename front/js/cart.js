@@ -1,5 +1,13 @@
 const api = "http://localhost:3000/api/products/";
-let dataCart = JSON.parse(localStorage.getItem("Kanap"));
+function getLocalStorage() {
+  const data = localStorage.getItem("Kanap")
+  if (data == null) {
+    return [];
+  } else {
+    return JSON.parse(data);
+  }
+}
+let dataCart = getLocalStorage();
 const cartItem = document.getElementById("cart__items");
 const totalQuantity = document.getElementById("totalQuantity");
 const totalPrice = document.getElementById("totalPrice");
@@ -95,6 +103,7 @@ const delItem = () => {
               dataCart = dataCart.filter((Kanap) => Kanap.id != id || Kanap.colors != color);
               localStorage.setItem("Kanap", JSON.stringify(dataCart));
               calcTotal();
+              PanierVide();
             }
           }
         })
@@ -180,19 +189,15 @@ const checkEmail = () => {
 email.addEventListener("change", checkEmail);
 
 function PanierVide() {
-  if (dataCart === "" || dataCart === null) {
+  if (dataCart.length === 0) {
   document.querySelector(".cartAndFormContainer h1").textContent = "Votre panier est vide";
   document.getElementById("order").style.visibility = "hidden";
 }
 }
-// PanierVide();
-console.log(dataCart);
+PanierVide();
 
 document.getElementById("order").addEventListener("click", (e) => {
   e.preventDefault();
-  if (dataCart.lenght == undefined || dataCart.lenght == 0) {
-    alert("Panier vide")
-  } else{
     if (checkFirstName() == true && checkLastName() == true && checkAddress() == true && checkCity() == true && checkEmail() == true) {
     let contact = new Object();
     let products = [];
@@ -204,9 +209,17 @@ document.getElementById("order").addEventListener("click", (e) => {
     for(let data of dataCart){
       products.push(data.id)
     }
-    console.log(products);
-    console.log(contact);
+    fetch("http://localhost:3000/api/products/order",{
+      method : "POST",
+      body : JSON.stringify({contact, products}),
+      headers : {
+        "Content-Type" : "application/json"
+      }
+    })
+    .then((res) => res.json())
+    .then((data) => {
+      location.href = `confirmation.html?orderId=${data.orderId}`;
+      localStorage.removeItem("Kanap");
+    })
   }
-  }
-
 })
